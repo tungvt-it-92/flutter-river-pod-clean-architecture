@@ -1,0 +1,18 @@
+{
+    "common_message_no_data": "There is no data",
+    "common_tab_all": "All",
+    "common_tab_doing": "Doing",
+    "common_tab_done": "Done",
+    "common_button_save": "Save",
+    "common_message_mark_todo_as_doing": "Mark this item is \"Doing\"?",
+    "common_message_mark_todo_as_done": "Mark this item is \"Done\"?",
+    "common_message_server_maintaince": "Server is under mainaince. Please comeback latter",
+    "common_message_internet_problem": "Cannot connect to server",
+    "add_new_toto_title": "Add new todo",
+    "add_new_toto_label_title": "Title",
+    "add_new_toto_hint_label_title": "Input title",
+    "add_new_toto_label_desciption": "Description",
+    "add_new_toto_hint_label_desciption": "Input description",
+    "add_new_toto_title_empty_error": "Title must not be empty",
+    "add_new_toto_title_description_error": "Description must not be empty"
+}
