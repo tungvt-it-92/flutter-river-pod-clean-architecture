@@ -43,15 +43,17 @@ class AsyncTodosAutoDisposeFamilyAsyncNotifier extends AutoDisposeFamilyAsyncNot
     });
   }
 
-  updateTodo({required TodoModel todo}) async {
+  updateTodo({required TodoModel todo, required PageTag tag}) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final todoRepository = ref.read(totoRepositoryProvider);
       await todoRepository.updateTodo(todo: todo);
       var current = state.value ?? [];
       final index = current.indexOf(todo);
-      if (index >= 0) {
+      if (index >= 0 && tag == PageTag.allTodo) {
         current[index] = todo;
+      } else {
+       current.removeAt(index);
       }
       return current;
     });

@@ -11,7 +11,7 @@ class MainPage extends BasePage {
   State<StatefulWidget> createState() => MainPageState();
 }
 
-class MainPageState extends BasePageState<MainPage> with BasePageMixin {
+class MainPageState extends BasePageState<MainPage> {
   int pageIndex = 0;
   PageTag pageTag = PageTag.allTodo;
 
@@ -51,8 +51,12 @@ class MainPageState extends BasePageState<MainPage> with BasePageMixin {
           Navigator.of(context).pop(data);
         }));
     if (result != null) {
-      // ref.read(asyncTodosProvider.notifier).add(todo: result);
-      ref.read(asyncTodosAutoDisposeProvider(pageTag).notifier).add(todo: result);
+      ref.read(asyncTodosAutoDisposeFamilyProvider(pageTag).notifier).add(todo: result);
+      for (var tag in [PageTag.allTodo, PageTag.doingTodo, PageTag.doneTodo]) {
+        if(tag !=  pageTag) {
+          ref.invalidate(asyncTodosAutoDisposeFamilyProvider(tag));
+        }
+      }
     }
   }
 }

@@ -5,7 +5,7 @@ import 'package:todos/presentation/page/todo_list/async_todos_notifier.dart';
 import '../../utils/page_tag.dart';
 
 
-final asyncTodosAutoDisposeProvider =
+final asyncTodosAutoDisposeFamilyProvider =
 AutoDisposeAsyncNotifierProviderFamily<AsyncTodosAutoDisposeFamilyAsyncNotifier, List<TodoModel>, PageTag>(
     AsyncTodosAutoDisposeFamilyAsyncNotifier.new);
 

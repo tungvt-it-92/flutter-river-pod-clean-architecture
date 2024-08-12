@@ -15,64 +15,62 @@ class TodoListPage extends BasePage {
   State<StatefulWidget> createState() => TodoListPageState();
 }
 
-class TodoListPageState extends BasePageState<TodoListPage> with BasePageMixin {
+class TodoListPageState extends BasePageState<TodoListPage> {
   final RefreshController _controller = RefreshController(initialRefresh: false);
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget buildLayout(BuildContext context, WidgetRef ref) {
     final pageTag = (widget as BasePage).tag;
-    final AsyncValue<List<TodoModel>> state = ref.watch(asyncTodosAutoDisposeProvider(pageTag));
+    final AsyncValue<List<TodoModel>> state = ref.watch(asyncTodosAutoDisposeFamilyProvider(pageTag));
     _controller.refreshCompleted();
+    ref.listen(asyncTodosAutoDisposeFamilyProvider(pageTag), listenStateChanged);
+    final todos = state.value ?? [];
 
     return Padding(
       padding: const EdgeInsets.all(15.0),
       child: SmartRefresher(
         onRefresh: () {
-          ref.refresh(asyncTodosAutoDisposeProvider(pageTag).notifier);
+          ref.invalidate(asyncTodosAutoDisposeFamilyProvider(pageTag));
         },
         controller: _controller,
-        child: switch (state) {
-          AsyncError() => const Text('Oops, something unexpected happened'),
-          AsyncData(:final value) => value.isEmpty
-              ? const NoDataMessageWidget()
-              : ListView.separated(
-                  separatorBuilder: (context, index) => const SizedBox(
-                    height: 15,
-                  ),
-                  itemCount: value.length,
-                  itemBuilder: (_, index) {
-                    return TodoItemWidget(
-                      onUpdateClicked: (todo) {
-                        _showUpdateConfirmDialog(todo, ref, pageTag);
-                      },
-                      todo: value[index],
-                      onConfirmDismiss: (c, todo) {
-                        _showDeleteConfirmDialog(todo, ref, pageTag);
-                      },
-                    );
-                  },
-                ),
-          _ => buildShimmer(),
-        },
+        child: todos.isEmpty
+            ? const NoDataMessageWidget()
+            : ListView.separated(
+          separatorBuilder: (context, index) => const SizedBox(
+            height: 15,
+          ),
+          itemCount: todos.length,
+          itemBuilder: (_, index) {
+            return TodoItemWidget(
+              onUpdateClicked: (todo) {
+                _showUpdateConfirmDialog(todo, ref, pageTag);
+              },
+              todo: todos[index],
+              onConfirmDismiss: (c, todo) {
+                _showDeleteConfirmDialog(todo, ref, pageTag);
+              },
+            );
+          },
+        ),
       ),
     );
   }
 
-  _showUpdateConfirmDialog(TodoModel todo, WidgetRef ref, PageTag tag) async {
+  _showUpdateConfirmDialog(TodoModel todo, WidgetRef ref, PageTag currentTag) async {
     final message = todo.isFinished ? 'Mark this item is "Doing" ?' : 'Mark this item is "Done" ?';
     final isOk = await showAlert(context: context, message: message);
     if (isOk) {
       todo.isFinished = !todo.isFinished;
-      ref.read(asyncTodosAutoDisposeProvider(tag).notifier).updateTodo(todo: todo);
+      ref.read(asyncTodosAutoDisposeFamilyProvider(currentTag).notifier).updateTodo(todo: todo, tag: currentTag);
+      for (var tag in [PageTag.allTodo, PageTag.doingTodo, PageTag.doneTodo]) {
+        if(tag !=  currentTag) {
+          ref.invalidate(asyncTodosAutoDisposeFamilyProvider(tag));
+        }
+      }
     }
   }
 
-  _showDeleteConfirmDialog(TodoModel todo, WidgetRef ref, PageTag tag) async {
+  _showDeleteConfirmDialog(TodoModel todo, WidgetRef ref, PageTag currentTag) async {
     final isOk = await showAlert(
       context: context,
       message: 'Are you sure to delete this note?',
@@ -80,12 +78,12 @@ class TodoListPageState extends BasePageState<TodoListPage> with BasePageMixin {
       cancelTitle: 'Cancel',
     );
     if (isOk) {
-      ref.read(asyncTodosAutoDisposeProvider(tag).notifier).remove(todo: todo);
+      ref.read(asyncTodosAutoDisposeFamilyProvider(currentTag).notifier).remove(todo: todo);
+      for (var tag in [PageTag.allTodo, PageTag.doingTodo, PageTag.doneTodo]) {
+        if(tag !=  currentTag) {
+          ref.invalidate(asyncTodosAutoDisposeFamilyProvider(tag));
+        }
+      }
     }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }

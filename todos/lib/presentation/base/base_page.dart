@@ -1,10 +1,13 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:focus_detector/focus_detector.dart';
+import 'package:todos/presentation/base/base_page_mixin.dart';
+
+import '../../core/error/exceptions.dart';
 import '../utils/index.dart';
 
 export 'package:logger/logger.dart';
 export 'package:todos/presentation/utils/input_formatter.dart';
+
 export '..//styles/index.dart';
 export '../utils/index.dart';
 
@@ -17,12 +20,13 @@ abstract class BasePage extends StatefulWidget {
   final PageTag tag;
 }
 
-abstract class BasePageState<T> extends State {
+abstract class BasePageState<T> extends State with BasePageMixin {
   late BuildContext subContext;
 
   bool get resizeToAvoidBottomInset => false;
 
   void onFocusGained(WidgetRef ref) {}
+
   void onForegroundGained(WidgetRef ref) {}
 
   @override
@@ -37,36 +41,18 @@ abstract class BasePageState<T> extends State {
 
   Widget buildLayout(BuildContext context, WidgetRef ref);
 
-  // void stateListenerHandler(BaseState state) async {
-  // if (state.failure != null) {
-  //   if ((state.failure!.httpStatusCode ?? 0) == accessTokenExpiredCode) {
-  //     final result = await showAlert(
-  //       primaryColor: AppColors.primaryColor,
-  //       context: context,
-  //       message: AppLocalizations.shared.commonMessageServerMaintenance,
-  //     );
-  //     if (result) {
-  //       navigator.popToRoot(context: context);
-  //       applicationBloc.dispatchEvent(AccessTokenExpiredEvent());
-  //     }
-  //     return;
-  //   }
-  //   String message = '';
-  //   Logger().d('[Debug]: error ${state.failure?.message}');
-  //   if (state.failure!.message == internetErrorMessage || state.failure!.message == socketErrorMessage) {
-  //     message = AppLocalizations.shared.commonMessageConnectionError;
-  //   } else if (state.failure!.message == serverErrorMessage) {
-  //     message = AppLocalizations.shared.commonMessageServerMaintenance;
-  //   } else {
-  //     message = state.failure!.message ?? unknownErrorMessage;
-  //   }
-  //   showAlert(
-  //     context: context,
-  //     message: message,
-  //     primaryColor: AppColors.primaryColor,
-  //   );
-  // }
-  // }
+  void listenStateChanged(AsyncValue<dynamic>? prevState,AsyncValue<dynamic> state) async {
+    state.whenOrNull(error: (error, _) async {
+      if (error is IOException) {
+        showAlert(
+          context: context,
+          message: error.errorMessage ?? '',
+          primaryColor: AppColors.primaryColor,
+        );
+        return;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
