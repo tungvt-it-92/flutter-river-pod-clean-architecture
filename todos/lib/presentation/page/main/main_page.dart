@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todos/presentation/base/base_page.dart';
 import 'package:todos/presentation/base/base_page_mixin.dart';
 import 'package:todos/presentation/page/main/widget/input_toto_widget.dart';
@@ -12,13 +13,14 @@ class MainPage extends BasePage {
 
 class MainPageState extends BasePageState<MainPage> with BasePageMixin {
   int pageIndex = 0;
+  PageTag pageTag = PageTag.allTodo;
 
   @override
-  Widget buildLayout(BuildContext context) {
+  Widget buildLayout(BuildContext context, WidgetRef ref) {
     return Scaffold(
       floatingActionButton: _CreateTodoButton(
         onPressed: () {
-          _onAddNewTodoClickedHandler();
+          _onAddNewTodoClickedHandler(ref);
         },
       ),
       bottomNavigationBar: _BottomNavigationBar(
@@ -26,6 +28,7 @@ class MainPageState extends BasePageState<MainPage> with BasePageMixin {
           onItemClicked: (index) {
             setState(() {
               pageIndex = index;
+              pageTag = pageIndex == 0 ? PageTag.allTodo : (pageIndex == 1 ? PageTag.doingTodo : PageTag.doneTodo);
             });
           }),
       body: SafeArea(
@@ -41,14 +44,15 @@ class MainPageState extends BasePageState<MainPage> with BasePageMixin {
     );
   }
 
-  _onAddNewTodoClickedHandler() async {
+  _onAddNewTodoClickedHandler(WidgetRef ref) async {
     final result = await showWidgetDialog(
         context: context,
         child: InputTodoWidget(onConfirm: (data) {
           Navigator.of(context).pop(data);
         }));
     if (result != null) {
-      // bloc.dispatchEvent(OnAddNewTodoEvent(todo: result));
+      // ref.read(asyncTodosProvider.notifier).add(todo: result);
+      ref.read(asyncTodosAutoDisposeProvider(pageTag).notifier).add(todo: result);
     }
   }
 }

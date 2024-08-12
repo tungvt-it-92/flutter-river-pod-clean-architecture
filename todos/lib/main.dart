@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'presentation/page/main/index.dart';
 import 'presentation/resources/index.dart';
@@ -8,7 +9,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AppLocalizations.shared.reloadLanguageBundle(languageCode: 'en');
   runApp(
-    const MyApp(),
+      const ProviderScope(
+      child: MyApp(),
+    )
   );
 }
 
