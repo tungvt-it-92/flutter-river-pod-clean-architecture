@@ -1,32 +1,38 @@
 import 'package:dartz/dartz.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todos/domain/model/todo_model.dart';
 import 'package:todos/domain/repository/todo_repository.dart';
 import '../../core/error/failures.dart';
+import '../../data/repository/repository_provider.dart';
 import 'base_usecase.dart';
 
 abstract class AddNewTotoUseCase {
-  Future<Either<Failure, bool>> addNewTodo({required TodoModel todoModel});
+  Future<Either<Failure, bool>> call({required TodoModel todoModel});
 }
 
-class AddNewTotoUseCaseImpl extends BaseUseCase<bool>
+class AddNewTotoUseCaseImpl extends BaseUseCase<bool, TodoModel>
     implements AddNewTotoUseCase {
   TodoRepository todoRepository;
-  late TodoModel _todoModel;
 
   AddNewTotoUseCaseImpl(
     this.todoRepository,
   );
 
   @override
-  Future<Either<Failure, bool>> addNewTodo(
+  Future<Either<Failure, bool>> call(
       {required TodoModel todoModel}) async {
-    _todoModel = todoModel;
-    return execute();
+    return execute(todoModel);
   }
 
   @override
-  Future<bool> main() async {
-    await todoRepository.addNewTodo(todo: _todoModel);
+  Future<bool> main(TodoModel? arg) async {
+    await todoRepository.addNewTodo(todo: arg!);
     return true;
   }
 }
+
+var addNewTodoProviderUseCaseProvider = Provider<AddNewTotoUseCase>((ref) {
+  final repository = ref.read(todoRepositoryProvider);
+
+  return AddNewTotoUseCaseImpl(repository);
+});

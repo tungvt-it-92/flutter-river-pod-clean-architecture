@@ -3,10 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:todos/core/error/exceptions.dart';
 import 'package:todos/core/error/failures.dart';
 
-abstract class BaseUseCase<T> {
-  Future<Either<Failure, T>> execute() async {
+abstract class BaseUseCase<T, R> {
+  Future<Either<Failure, T>> execute(R? arg) async {
     try {
-      final res = await main();
+      final res = await main(arg);
       return Right(res);
     } on RemoteException catch (ex) {
       return Left(RemoteFailure(
@@ -19,12 +19,12 @@ abstract class BaseUseCase<T> {
       return Left(LocalFailure(msg: ex.message));
     } on IOException catch (ex) {
       return Left(LocalFailure(msg: ex.errorMessage, errorCode: ex.errorCode));
-    } on Exception {
-      return Left(UnknownFailure(msg: serverErrorMessage));
+    } on Exception catch (ex) {
+      return Left(UnknownFailure(msg: ex.toString()));
     } on Error catch (ex) {
       return Left(UnknownFailure(msg: ex.toString()));
     }
   }
 
-  Future<T> main();
+  Future<T> main(R? arg);
 }

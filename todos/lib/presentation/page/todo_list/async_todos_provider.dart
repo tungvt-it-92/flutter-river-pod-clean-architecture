@@ -6,7 +6,7 @@ import '../../utils/page_tag.dart';
 
 
 final asyncTodosAutoDisposeFamilyProvider =
-AutoDisposeAsyncNotifierProviderFamily<AsyncTodosAutoDisposeFamilyAsyncNotifier, List<TodoModel>, PageTag>(
+AutoDisposeAsyncNotifierProviderFamily<AsyncTodosAutoDisposeFamilyAsyncNotifier, TodosState, PageTag>(
     AsyncTodosAutoDisposeFamilyAsyncNotifier.new);
 
 // TODO: use regular AsyncNotifierProvider
