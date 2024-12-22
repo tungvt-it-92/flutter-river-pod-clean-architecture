@@ -5,6 +5,7 @@ import 'package:todos/presentation/base/base_page_mixin.dart';
 
 import '../../base/base_page.dart';
 import '../../widgets/index.dart';
+import 'async_todos_notifier.dart';
 import 'async_todos_provider.dart';
 import 'widget/todo_item_widget.dart';
 
@@ -21,11 +22,10 @@ class TodoListPageState extends BasePageState<TodoListPage> {
   @override
   Widget buildLayout(BuildContext context, WidgetRef ref) {
     final pageTag = (widget as BasePage).tag;
-    final AsyncValue<List<TodoModel>> state = ref.watch(asyncTodosAutoDisposeFamilyProvider(pageTag));
+    final AsyncValue<TodosState> state = ref.watch(asyncTodosAutoDisposeFamilyProvider(pageTag));
     _controller.refreshCompleted();
     ref.listen(asyncTodosAutoDisposeFamilyProvider(pageTag), listenStateChanged);
-    final todos = state.value ?? [];
-
+    final todos = state.value?.todos ?? [];
     return Padding(
       padding: const EdgeInsets.all(15.0),
       child: SmartRefresher(

@@ -1,61 +1,105 @@
 import 'dart:async';
-
+import 'package:dartz/dartz.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todos/domain/model/todo_model.dart';
+import 'package:todos/domain/usecase/index.dart';
 import 'package:todos/presentation/base/base_page.dart';
 import 'package:todos/presentation/page/todo_list/async_todos_provider.dart';
 
+import '../../../core/error/failures.dart';
 import '../../../data/repository/index.dart';
 
-class AsyncTodosAutoDisposeFamilyAsyncNotifier extends AutoDisposeFamilyAsyncNotifier<List<TodoModel>, PageTag> {
+class TodosState {
+  List<TodoModel> todos;
+  bool isLoading;
+  Failure? failure;
+
+  TodosState({
+    this.todos = const [],
+    this.isLoading = false,
+    this.failure,
+  });
+
+  TodosState copyWith({
+    List<TodoModel>? todos,
+    bool? isLoading,
+    Failure? failure,
+  }) {
+    return TodosState(
+      todos: todos ?? this.todos,
+      isLoading: isLoading ?? false,
+      failure: failure
+    );
+  }
+}
+
+class AsyncTodosAutoDisposeFamilyAsyncNotifier extends AutoDisposeFamilyAsyncNotifier<TodosState, PageTag> {
   @override
-  Future<List<TodoModel>> build(PageTag arg) {
-    final todoRepository = ref.read(totoRepositoryProvider);
+  Future<TodosState> build(PageTag arg) async {
+    state = AsyncData(TodosState(isLoading: true));
+    await fetch(arg);
+    return state.value!;
+  }
+
+  fetch(PageTag arg) async  {
+    state = AsyncData((await future).copyWith(isLoading: true));
+    final fetchCondition = arg == PageTag.allTodo ? null : (arg == PageTag.doingTodo ? false : true);
+    final getTodosUseCase = ref.read(getTodosUseCaseAutoDisposeFamilyProvider(fetchCondition));
+    Either<Failure, List<TodoModel>> result;
     if (arg == PageTag.allTodo) {
-      return todoRepository.getAll();
-    }
-    if (arg == PageTag.doingTodo) {
-      return todoRepository.getTodoListByCondition(isFinished: false);
+      result = await getTodosUseCase();
+    } else if (arg == PageTag.doingTodo) {
+      result = await getTodosUseCase(isFinished: false);
+    } else {
+      result = await getTodosUseCase(isFinished: true);
     }
 
-    return todoRepository.getTodoListByCondition(isFinished: true);
+    await result.fold((failure) async {
+      state = AsyncData((await future).copyWith(failure: failure));
+    }, (value) async {
+      state = AsyncData((await future).copyWith(todos: value));
+    });
   }
 
   add({required TodoModel todo}) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      final todoRepository = ref.read(totoRepositoryProvider);
-      await todoRepository.addNewTodo(todo: todo);
-      var current = state.value ?? [];
-      current.add(todo);
-      return current;
+    state = AsyncData(state.value!.copyWith(isLoading: true));
+
+    final result = await ref.read(addNewTodoProviderUseCaseProvider)(todoModel: todo);
+    final currentValue = await future;
+    state = result.fold((failure) {
+      return AsyncData(currentValue.copyWith(failure: failure));
+    }, (_) {
+      return AsyncData(currentValue.copyWith(todos: [...currentValue.todos, todo]));
     });
   }
 
   remove({required TodoModel todo}) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      final todoRepository = ref.read(totoRepositoryProvider);
-      await todoRepository.remove(id: todo.id);
-      var current = state.value ?? [];
-      current.remove(todo);
-      return current;
+    state = AsyncData((await future).copyWith(isLoading: true));
+
+    final result = await ref.read(removeTodoUseCaseAutoDisposeProvider)(todoModel: todo);
+    final currentValue = await future;
+    state = result.fold((failure) {
+      return AsyncData(currentValue.copyWith(failure: failure));
+    }, (_) {
+      List<TodoModel> todos = currentValue.todos.where((p) => p.id != todo.id).toList();
+      return AsyncData(currentValue.copyWith(todos: todos));
     });
   }
 
   updateTodo({required TodoModel todo, required PageTag tag}) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      final todoRepository = ref.read(totoRepositoryProvider);
-      await todoRepository.updateTodo(todo: todo);
-      var current = state.value ?? [];
-      final index = current.indexOf(todo);
-      if (index >= 0 && tag == PageTag.allTodo) {
-        current[index] = todo;
+    state = AsyncData(state.value!.copyWith(isLoading: true));
+
+    final result = await ref.read(updateTodoUseCaseAutoDisposeProvider)(todoModel: todo);
+    result.fold((failure) {
+      state = AsyncData(state.value!.copyWith(failure: failure));
+    }, (_) {
+      List<TodoModel> todos = (state.value?.todos ?? []);
+      if (tag == PageTag.allTodo) {
+        todos = todos.map((t) => t.id == todo.id ? todo : t).toList();
       } else {
-       current.removeAt(index);
+        todos = todos.where((p) => p.id != todo.id).toList();
       }
-      return current;
+      state = AsyncData(state.value!.copyWith(todos: todos));
     });
   }
 }
@@ -65,7 +109,7 @@ class AsyncTodosNotifier extends AsyncNotifier<List<TodoModel>> {
   @override
   Future<List<TodoModel>> build() async {
     final tag = ref.watch(todoFilterConditionProvider);
-    final todoRepository = ref.read(totoRepositoryProvider);
+    final todoRepository = ref.read(todoRepositoryProvider);
     if (tag == PageTag.allTodo) {
       return todoRepository.getAll();
     }
@@ -79,7 +123,7 @@ class AsyncTodosNotifier extends AsyncNotifier<List<TodoModel>> {
   add({required TodoModel todo}) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      final todoRepository = ref.read(totoRepositoryProvider);
+      final todoRepository = ref.read(todoRepositoryProvider);
       await todoRepository.addNewTodo(todo: todo);
       var current = state.value ?? [];
       current.add(todo);
@@ -90,7 +134,7 @@ class AsyncTodosNotifier extends AsyncNotifier<List<TodoModel>> {
   remove({required TodoModel todo}) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      final todoRepository = ref.read(totoRepositoryProvider);
+      final todoRepository = ref.read(todoRepositoryProvider);
       await todoRepository.remove(id: todo.id);
       var current = state.value ?? [];
       current.remove(todo);
@@ -101,7 +145,7 @@ class AsyncTodosNotifier extends AsyncNotifier<List<TodoModel>> {
   updateTodo({required TodoModel todo}) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      final todoRepository = ref.read(totoRepositoryProvider);
+      final todoRepository = ref.read(todoRepositoryProvider);
       await todoRepository.updateTodo(todo: todo);
       var current = state.value ?? [];
       final index = current.indexOf(todo);
