@@ -40,7 +40,8 @@ class SolidButton extends StatelessWidget {
           ),
         ),
         backgroundColor: WidgetStateProperty.all<Color>(
-            backgroundColor ?? AppColors.primaryColor),
+          backgroundColor ?? AppColors.primaryColor,
+        ),
       ),
       child: SizedBox(
         height: height,

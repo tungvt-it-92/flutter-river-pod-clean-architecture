@@ -32,15 +32,12 @@ class AppColors {
   static const Color color08125A9D = Color(0x08125A9D);
   static const Color colorFF125A9D = Color(0xFF0072C5);
 
-
-
-
   static const MaterialColor gray = MaterialColor(
     0xff757575,
     <int, Color>{
       400: Color(0xFF94A3B8),
       700: Color(0xFF334155),
-      800: Color(0xFF1E293B)
+      800: Color(0xFF1E293B),
     },
   );
 
@@ -49,10 +46,9 @@ class AppColors {
     <int, Color>{
       400: Color(0xFF1D1D1D),
       700: Color(0xFF334155),
-      800: Color(0xFF1E293B)
+      800: Color(0xFF1E293B),
     },
   );
-
 
   static const MaterialColor blue = MaterialColor(
     0xff3460DC,

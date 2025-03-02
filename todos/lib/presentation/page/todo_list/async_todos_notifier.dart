@@ -28,12 +28,13 @@ class TodosState {
     return TodosState(
       todos: todos ?? this.todos,
       isLoading: isLoading ?? false,
-      failure: failure
+      failure: failure,
     );
   }
 }
 
-class AsyncTodosAutoDisposeFamilyAsyncNotifier extends AutoDisposeFamilyAsyncNotifier<TodosState, PageTag> {
+class AsyncTodosAutoDisposeFamilyAsyncNotifier
+    extends AutoDisposeFamilyAsyncNotifier<TodosState, PageTag> {
   @override
   Future<TodosState> build(PageTag arg) async {
     state = AsyncData(TodosState(isLoading: true));
@@ -41,10 +42,13 @@ class AsyncTodosAutoDisposeFamilyAsyncNotifier extends AutoDisposeFamilyAsyncNot
     return state.value!;
   }
 
-  fetch(PageTag arg) async  {
+  fetch(PageTag arg) async {
     state = AsyncData((await future).copyWith(isLoading: true));
-    final fetchCondition = arg == PageTag.allTodo ? null : (arg == PageTag.doingTodo ? false : true);
-    final getTodosUseCase = ref.read(getTodosUseCaseAutoDisposeFamilyProvider(fetchCondition));
+    final fetchCondition = arg == PageTag.allTodo
+        ? null
+        : (arg == PageTag.doingTodo ? false : true);
+    final getTodosUseCase =
+        ref.read(getTodosUseCaseAutoDisposeFamilyProvider(fetchCondition));
     Either<Failure, List<TodoModel>> result;
     if (arg == PageTag.allTodo) {
       result = await getTodosUseCase();
@@ -64,24 +68,29 @@ class AsyncTodosAutoDisposeFamilyAsyncNotifier extends AutoDisposeFamilyAsyncNot
   add({required TodoModel todo}) async {
     state = AsyncData(state.value!.copyWith(isLoading: true));
 
-    final result = await ref.read(addNewTodoProviderUseCaseProvider)(todoModel: todo);
+    final result =
+        await ref.read(addNewTodoProviderUseCaseProvider)(todoModel: todo);
     final currentValue = await future;
     state = result.fold((failure) {
       return AsyncData(currentValue.copyWith(failure: failure));
     }, (_) {
-      return AsyncData(currentValue.copyWith(todos: [...currentValue.todos, todo]));
+      return AsyncData(
+        currentValue.copyWith(todos: [...currentValue.todos, todo]),
+      );
     });
   }
 
   remove({required TodoModel todo}) async {
     state = AsyncData((await future).copyWith(isLoading: true));
 
-    final result = await ref.read(removeTodoUseCaseAutoDisposeProvider)(todoModel: todo);
+    final result =
+        await ref.read(removeTodoUseCaseAutoDisposeProvider)(todoModel: todo);
     final currentValue = await future;
     state = result.fold((failure) {
       return AsyncData(currentValue.copyWith(failure: failure));
     }, (_) {
-      List<TodoModel> todos = currentValue.todos.where((p) => p.id != todo.id).toList();
+      List<TodoModel> todos =
+          currentValue.todos.where((p) => p.id != todo.id).toList();
       return AsyncData(currentValue.copyWith(todos: todos));
     });
   }
@@ -89,11 +98,12 @@ class AsyncTodosAutoDisposeFamilyAsyncNotifier extends AutoDisposeFamilyAsyncNot
   updateTodo({required TodoModel todo, required PageTag tag}) async {
     state = AsyncData(state.value!.copyWith(isLoading: true));
 
-    final result = await ref.read(updateTodoUseCaseAutoDisposeProvider)(todoModel: todo);
+    final result =
+        await ref.read(updateTodoUseCaseAutoDisposeProvider)(todoModel: todo);
     result.fold((failure) {
       state = AsyncData(state.value!.copyWith(failure: failure));
     }, (_) {
-      List<TodoModel> todos = (state.value?.todos ?? []);
+      List<TodoModel> todos = state.value?.todos ?? [];
       if (tag == PageTag.allTodo) {
         todos = todos.map((t) => t.id == todo.id ? todo : t).toList();
       } else {

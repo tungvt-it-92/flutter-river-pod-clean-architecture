@@ -19,10 +19,11 @@ main() {
     mockTodoRepository = MockTodoRepository();
     providerContainer = ProviderContainer(
       overrides: [
-        todoRepositoryProvider.overrideWithValue(mockTodoRepository)
-      ]
+        todoRepositoryProvider.overrideWithValue(mockTodoRepository),
+      ],
     );
-    getTodosUseCase = providerContainer.read(getTodosUseCaseAutoDisposeFamilyProvider(null));
+    getTodosUseCase =
+        providerContainer.read(getTodosUseCaseAutoDisposeFamilyProvider(null));
   });
 
   tearDown(() {
@@ -32,32 +33,59 @@ main() {
   group('GetTodosUseCase', () {
     test('should return all todo when not providing condition', () async {
       final allTodos = [
-        TodoModel(id: 1, title: "title", description: "description", createdDate: DateTime.now(), isFinished: true)
+        TodoModel(
+          id: 1,
+          title: 'title',
+          description: 'description',
+          createdDate: DateTime.now(),
+          isFinished: true,
+        ),
       ];
-      when(() => mockTodoRepository.getAll()).thenAnswer((_) => Future.value(allTodos));
+      when(() => mockTodoRepository.getAll())
+          .thenAnswer((_) => Future.value(allTodos));
 
-      Either<Failure, List<TodoModel>> result =  await getTodosUseCase();
-      
+      Either<Failure, List<TodoModel>> result = await getTodosUseCase();
+
       expect(result.isRight(), true);
       expect(result.getOrElse(() => []), allTodos);
       verify(() => mockTodoRepository.getAll()).called(1);
       verifyNoMoreInteractions(mockTodoRepository);
-      verifyNever(() => mockTodoRepository.getTodoListByCondition(isFinished: true));
-      verifyNever(() => mockTodoRepository.getTodoListByCondition(isFinished: false));
+      verifyNever(
+        () => mockTodoRepository.getTodoListByCondition(isFinished: true),
+      );
+      verifyNever(
+        () => mockTodoRepository.getTodoListByCondition(isFinished: false),
+      );
     });
 
     [true, false].asMap().forEach((index, condition) {
-      test('should return filtered todos when providing condition case $index', () async {
+      test('should return filtered todos when providing condition case $index',
+          () async {
         final filteredTodos = [
-          TodoModel(id: 1, title: "title", description: "description", createdDate: DateTime.now(), isFinished: true)
+          TodoModel(
+            id: 1,
+            title: 'title',
+            description: 'description',
+            createdDate: DateTime.now(),
+            isFinished: true,
+          ),
         ];
-        when(() => mockTodoRepository.getTodoListByCondition(isFinished: condition)).thenAnswer((_) => Future.value(filteredTodos));
+        when(
+          () => mockTodoRepository.getTodoListByCondition(
+            isFinished: condition,
+          ),
+        ).thenAnswer((_) => Future.value(filteredTodos));
 
-        Either<Failure, List<TodoModel>> result =  await getTodosUseCase(isFinished: condition);
+        Either<Failure, List<TodoModel>> result =
+            await getTodosUseCase(isFinished: condition);
 
         expect(result.isRight(), true);
         expect(result.getOrElse(() => []), filteredTodos);
-        verify(() => mockTodoRepository.getTodoListByCondition(isFinished: condition)).called(1);
+        verify(
+          () => mockTodoRepository.getTodoListByCondition(
+            isFinished: condition,
+          ),
+        ).called(1);
         verifyNever(() => mockTodoRepository.getAll());
         verifyNoMoreInteractions(mockTodoRepository);
       });

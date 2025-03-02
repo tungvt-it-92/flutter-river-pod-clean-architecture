@@ -51,7 +51,7 @@ main() {
         description: 'description',
         createdDate: DateTime.now(),
         isFinished: false,
-      )
+      ),
     ];
     final finishedTodos = [
       TodoModel(
@@ -60,7 +60,7 @@ main() {
         description: 'description',
         createdDate: DateTime.now(),
         isFinished: true,
-      )
+      ),
     ];
     final doingTodos = [
       TodoModel(
@@ -69,22 +69,29 @@ main() {
         description: 'description',
         createdDate: DateTime.now(),
         isFinished: true,
-      )
+      ),
     ];
     setUp(() {
       mockGetAllTodosUseCase = MockGetTodosUseCase();
       mockGetFinishedTodosUseCase = MockGetTodosUseCase();
       mockGetDoingTodosUseCase = MockGetTodosUseCase();
-      providerContainer = ProviderContainer(overrides: [
-        getTodosUseCaseAutoDisposeFamilyProvider.overrideWith((ref, arg) {
-          return arg == null
-              ? mockGetAllTodosUseCase
-              : (arg == true ? mockGetFinishedTodosUseCase : mockGetDoingTodosUseCase);
-        })
-      ]);
-      when(mockGetAllTodosUseCase()).thenAnswer((_) => Future.value(Right(allTodos)));
-      when(mockGetDoingTodosUseCase(isFinished: false)).thenAnswer((_) => Future.value(Right(doingTodos)));
-      when(mockGetFinishedTodosUseCase(isFinished: true)).thenAnswer((_) async => Right(finishedTodos));
+      providerContainer = ProviderContainer(
+        overrides: [
+          getTodosUseCaseAutoDisposeFamilyProvider.overrideWith((ref, arg) {
+            return arg == null
+                ? mockGetAllTodosUseCase
+                : (arg == true
+                    ? mockGetFinishedTodosUseCase
+                    : mockGetDoingTodosUseCase);
+          }),
+        ],
+      );
+      when(mockGetAllTodosUseCase())
+          .thenAnswer((_) => Future.value(Right(allTodos)));
+      when(mockGetDoingTodosUseCase(isFinished: false))
+          .thenAnswer((_) => Future.value(Right(doingTodos)));
+      when(mockGetFinishedTodosUseCase(isFinished: true))
+          .thenAnswer((_) async => Right(finishedTodos));
     });
 
     tearDown(() {
@@ -94,10 +101,14 @@ main() {
     });
 
     test('should initialize with all todos', () async {
-      providerContainer.listen(asyncTodosAutoDisposeFamilyProvider(PageTag.allTodo), listener.call,
-          fireImmediately: true);
+      providerContainer.listen(
+        asyncTodosAutoDisposeFamilyProvider(PageTag.allTodo),
+        listener.call,
+        fireImmediately: true,
+      );
 
-      await providerContainer.read(asyncTodosAutoDisposeFamilyProvider(PageTag.allTodo).future);
+      await providerContainer
+          .read(asyncTodosAutoDisposeFamilyProvider(PageTag.allTodo).future);
       await Future.delayed(const Duration(milliseconds: 0));
 
       verify(mockGetAllTodosUseCase()).called(1);
@@ -114,21 +125,27 @@ main() {
         ),
       );
 
-      verify(listener.call(
-        isA<AsyncData<TodosState>>()
-            .having((p) => p.value.isLoading, 'isLoading', true)
-            .having((p) => p.value.todos, 'todos', []),
-        isA<AsyncData<TodosState>>()
-            .having((p) => p.value.isLoading, 'isLoading', false)
-            .having((p) => p.value.todos, 'todos', allTodos),
-      ));
+      verify(
+        listener.call(
+          isA<AsyncData<TodosState>>()
+              .having((p) => p.value.isLoading, 'isLoading', true)
+              .having((p) => p.value.todos, 'todos', []),
+          isA<AsyncData<TodosState>>()
+              .having((p) => p.value.isLoading, 'isLoading', false)
+              .having((p) => p.value.todos, 'todos', allTodos),
+        ),
+      );
     });
 
     test('should initialize with doing todos', () async {
-      providerContainer.listen(asyncTodosAutoDisposeFamilyProvider(PageTag.doingTodo), listener.call,
-          fireImmediately: true);
+      providerContainer.listen(
+        asyncTodosAutoDisposeFamilyProvider(PageTag.doingTodo),
+        listener.call,
+        fireImmediately: true,
+      );
 
-      await providerContainer.read(asyncTodosAutoDisposeFamilyProvider(PageTag.doingTodo).future);
+      await providerContainer
+          .read(asyncTodosAutoDisposeFamilyProvider(PageTag.doingTodo).future);
       await Future.delayed(const Duration(milliseconds: 0));
 
       verify(mockGetDoingTodosUseCase(isFinished: false)).called(1);
@@ -149,15 +166,19 @@ main() {
           isA<AsyncData<TodosState>>()
               .having((p) => p.value.isLoading, 'isLoading', false)
               .having((p) => p.value.todos, 'todos', doingTodos),
-        )
+        ),
       ]);
     });
 
     test('should initialize with finished todos', () async {
-      providerContainer.listen(asyncTodosAutoDisposeFamilyProvider(PageTag.doneTodo), listener.call,
-          fireImmediately: true);
+      providerContainer.listen(
+        asyncTodosAutoDisposeFamilyProvider(PageTag.doneTodo),
+        listener.call,
+        fireImmediately: true,
+      );
 
-      await providerContainer.read(asyncTodosAutoDisposeFamilyProvider(PageTag.doneTodo).future);
+      await providerContainer
+          .read(asyncTodosAutoDisposeFamilyProvider(PageTag.doneTodo).future);
       await Future.delayed(const Duration(milliseconds: 0));
 
       verify(mockGetFinishedTodosUseCase(isFinished: true)).called(1);
@@ -186,21 +207,36 @@ main() {
 
   group('add()', () {
     late AddNewTotoUseCase mockAddNewTotoUseCase;
-    final newTodo =
-        TodoModel(id: 1, title: 'new todo', description: 'description', createdDate: DateTime.now(), isFinished: false);
+    final newTodo = TodoModel(
+      id: 1,
+      title: 'new todo',
+      description: 'description',
+      createdDate: DateTime.now(),
+      isFinished: false,
+    );
 
     setUp(() {
       mockAddNewTotoUseCase = MockAddNewTotoUseCase();
-      providerContainer =
-          ProviderContainer(overrides: [addNewTodoProviderUseCaseProvider.overrideWithValue(mockAddNewTotoUseCase)]);
-      providerContainer.listen(asyncTodosAutoDisposeFamilyProvider(PageTag.doingTodo), listener.call,
-          fireImmediately: false);
+      providerContainer = ProviderContainer(
+        overrides: [
+          addNewTodoProviderUseCaseProvider
+              .overrideWithValue(mockAddNewTotoUseCase),
+        ],
+      );
+      providerContainer.listen(
+        asyncTodosAutoDisposeFamilyProvider(PageTag.doingTodo),
+        listener.call,
+        fireImmediately: false,
+      );
     });
 
     test('should add new todo', () async {
-      when(mockAddNewTotoUseCase(todoModel: newTodo)).thenAnswer((_) => Future.value(const Right(true)));
+      when(mockAddNewTotoUseCase(todoModel: newTodo))
+          .thenAnswer((_) => Future.value(const Right(true)));
 
-      await providerContainer.read(asyncTodosAutoDisposeFamilyProvider(PageTag.doingTodo).notifier).add(todo: newTodo);
+      await providerContainer
+          .read(asyncTodosAutoDisposeFamilyProvider(PageTag.doingTodo).notifier)
+          .add(todo: newTodo);
 
       verify(mockAddNewTotoUseCase(todoModel: newTodo)).called(1);
       verify(
@@ -216,10 +252,17 @@ main() {
     });
 
     test('should handle failure', () async {
-      final failure = RemoteFailure(msg: 'add todo error message', errorCode: 'error-code', data: 'data');
-      when(mockAddNewTotoUseCase(todoModel: newTodo)).thenAnswer((_) => Future.value(Left(failure)));
+      final failure = RemoteFailure(
+        msg: 'add todo error message',
+        errorCode: 'error-code',
+        data: 'data',
+      );
+      when(mockAddNewTotoUseCase(todoModel: newTodo))
+          .thenAnswer((_) => Future.value(Left(failure)));
 
-      await providerContainer.read(asyncTodosAutoDisposeFamilyProvider(PageTag.doingTodo).notifier).add(todo: newTodo);
+      await providerContainer
+          .read(asyncTodosAutoDisposeFamilyProvider(PageTag.doingTodo).notifier)
+          .add(todo: newTodo);
 
       verify(mockAddNewTotoUseCase(todoModel: newTodo)).called(1);
       verify(
@@ -240,24 +283,38 @@ main() {
   group('remove()', () {
     late RemoveTodoUseCase mockRemoveTodoUseCase;
     late GetTodosUseCase mockGetDoingTodosUseCase;
-    final removeTodo =
-        TodoModel(id: 1, title: 'new todo', description: 'description', createdDate: DateTime.now(), isFinished: false);
+    final removeTodo = TodoModel(
+      id: 1,
+      title: 'new todo',
+      description: 'description',
+      createdDate: DateTime.now(),
+      isFinished: false,
+    );
 
     setUp(() async {
       mockRemoveTodoUseCase = MockRemoveTodoUseCase();
       mockGetDoingTodosUseCase = MockGetTodosUseCase();
-      providerContainer = ProviderContainer(overrides: [
-        removeTodoUseCaseAutoDisposeProvider.overrideWithValue(mockRemoveTodoUseCase),
-        getTodosUseCaseAutoDisposeFamilyProvider.overrideWith((_, __) => mockGetDoingTodosUseCase)
-      ]);
-      when(mockGetDoingTodosUseCase(isFinished: false)).thenAnswer((_) => Future.value(Right([removeTodo])));
-      providerContainer.listen(asyncTodosAutoDisposeFamilyProvider(PageTag.doingTodo), listener.call,
-          fireImmediately: true);
+      providerContainer = ProviderContainer(
+        overrides: [
+          removeTodoUseCaseAutoDisposeProvider
+              .overrideWithValue(mockRemoveTodoUseCase),
+          getTodosUseCaseAutoDisposeFamilyProvider
+              .overrideWith((_, __) => mockGetDoingTodosUseCase),
+        ],
+      );
+      when(mockGetDoingTodosUseCase(isFinished: false))
+          .thenAnswer((_) => Future.value(Right([removeTodo])));
+      providerContainer.listen(
+        asyncTodosAutoDisposeFamilyProvider(PageTag.doingTodo),
+        listener.call,
+        fireImmediately: true,
+      );
       await Future.delayed(const Duration(seconds: 0));
     });
 
     test('should remove todo', () async {
-      when(mockRemoveTodoUseCase(todoModel: removeTodo)).thenAnswer((_) => Future.value(const Right(true)));
+      when(mockRemoveTodoUseCase(todoModel: removeTodo))
+          .thenAnswer((_) => Future.value(const Right(true)));
 
       await providerContainer
           .read(asyncTodosAutoDisposeFamilyProvider(PageTag.doingTodo).notifier)
@@ -277,8 +334,13 @@ main() {
     });
 
     test('should handle failure', () async {
-      final failure = RemoteFailure(msg: 'remove todo error message', errorCode: 'error-code', data: 'data');
-      when(mockRemoveTodoUseCase(todoModel: removeTodo)).thenAnswer((_) => Future.value(Left(failure)));
+      final failure = RemoteFailure(
+        msg: 'remove todo error message',
+        errorCode: 'error-code',
+        data: 'data',
+      );
+      when(mockRemoveTodoUseCase(todoModel: removeTodo))
+          .thenAnswer((_) => Future.value(Left(failure)));
 
       await providerContainer
           .read(asyncTodosAutoDisposeFamilyProvider(PageTag.doingTodo).notifier)

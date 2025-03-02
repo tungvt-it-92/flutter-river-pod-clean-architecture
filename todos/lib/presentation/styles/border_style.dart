@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 
 import 'index.dart';
 
-UnderlineInputBorder underlineBorder(
-    {double size = 0.2, Color color = Colors.green}) {
+UnderlineInputBorder underlineBorder({
+  double size = 0.2,
+  Color color = Colors.green,
+}) {
   return UnderlineInputBorder(
-      borderSide: BorderSide(width: size, color: color));
+    borderSide: BorderSide(width: size, color: color),
+  );
 }
 
 OutlineInputBorder outlineBorder = const OutlineInputBorder(

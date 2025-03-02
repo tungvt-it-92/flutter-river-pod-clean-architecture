@@ -5,7 +5,6 @@ import 'package:todos/presentation/page/todo_list/widget/todo_item_widget.dart';
 import 'base_page_object.dart';
 
 class TodoListPageObject extends BasePageObject {
-
   TodoListPageObject({
     required super.tester,
   });
@@ -31,8 +30,11 @@ class TodoListPageObject extends BasePageObject {
     await click(_saveButton);
   }
 
-  clickOnMarkAsDoneButton({ required int atItemIndex }) async {
-    final markAsDoneButton = find.descendant(of: find.byType(TodoItemWidget), matching:find.byKey(const ValueKey('updateTodoItem')));
+  clickOnMarkAsDoneButton({required int atItemIndex}) async {
+    final markAsDoneButton = find.descendant(
+      of: find.byType(TodoItemWidget),
+      matching: find.byKey(const ValueKey('updateTodoItem')),
+    );
     await click(markAsDoneButton);
   }
 

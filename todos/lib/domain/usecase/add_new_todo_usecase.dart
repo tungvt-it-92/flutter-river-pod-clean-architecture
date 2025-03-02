@@ -19,8 +19,9 @@ class AddNewTotoUseCaseImpl extends BaseUseCase<bool, TodoModel>
   );
 
   @override
-  Future<Either<Failure, bool>> call(
-      {required TodoModel todoModel}) async {
+  Future<Either<Failure, bool>> call({
+    required TodoModel todoModel,
+  }) async {
     return execute(todoModel);
   }
 

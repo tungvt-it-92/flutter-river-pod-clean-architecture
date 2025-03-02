@@ -67,22 +67,24 @@ class TodoItemWidget extends StatelessWidget {
                     Text(
                       todo.createdDate.formatDateAndTime(),
                       style: bodySmall.copyWith(
-                          color: AppColors.gray[400],
-                          fontSize: 11,
-                          fontStyle: FontStyle.italic),
+                        color: AppColors.gray[400],
+                        fontSize: 11,
+                        fontStyle: FontStyle.italic,
+                      ),
                     ),
                   ],
                 ),
               ),
               IconButton(
                 key: const ValueKey('updateTodoItem'),
-                  onPressed: () {
-                    onUpdateClicked(todo);
-                  },
-                  icon: Icon(
-                    todo.isFinished ? Icons.done : Icons.radio_button_unchecked,
-                    color: AppColors.primaryColor,
-                  ))
+                onPressed: () {
+                  onUpdateClicked(todo);
+                },
+                icon: Icon(
+                  todo.isFinished ? Icons.done : Icons.radio_button_unchecked,
+                  color: AppColors.primaryColor,
+                ),
+              ),
             ],
           ),
         ),

@@ -41,38 +41,45 @@ abstract class BasePageState<T> extends State with BasePageMixin {
 
   Widget buildLayout(BuildContext context, WidgetRef ref);
 
-  void listenStateChanged(AsyncValue<dynamic>? prevState,AsyncValue<dynamic> state) async {
-    state.whenOrNull(error: (error, _) async {
-      if (error is IOException) {
-        showAlert(
-          context: context,
-          message: error.errorMessage ?? '',
-          primaryColor: AppColors.primaryColor,
-        );
-        return;
-      }
-    });
+  void listenStateChanged(
+    AsyncValue<dynamic>? prevState,
+    AsyncValue<dynamic> state,
+  ) async {
+    state.whenOrNull(
+      error: (error, _) async {
+        if (error is IOException) {
+          showAlert(
+            context: context,
+            message: error.errorMessage ?? '',
+            primaryColor: AppColors.primaryColor,
+          );
+          return;
+        }
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer(builder: (ctx, ref, _) {
-      return FocusDetector(
-        onFocusGained: () {
-          onFocusGained(ref);
-        },
-        onFocusLost: () {},
-        onForegroundLost: () {},
-        onForegroundGained: () {
-          onForegroundGained(ref);
-        },
-        child: Scaffold(
-          // backgroundColor: Colors.transparent,
-          resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-          body: buildLayout(context, ref),
-        ),
-      );
-    });
+    return Consumer(
+      builder: (ctx, ref, _) {
+        return FocusDetector(
+          onFocusGained: () {
+            onFocusGained(ref);
+          },
+          onFocusLost: () {},
+          onForegroundLost: () {},
+          onForegroundGained: () {
+            onForegroundGained(ref);
+          },
+          child: Scaffold(
+            // backgroundColor: Colors.transparent,
+            resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+            body: buildLayout(context, ref),
+          ),
+        );
+      },
+    );
   }
 
   @override

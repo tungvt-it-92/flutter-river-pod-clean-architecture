@@ -67,7 +67,7 @@ class ShimmerItemWidget extends StatelessWidget {
                       ),
                     ],
                   ),
-                )
+                ),
               ],
             ),
           ),

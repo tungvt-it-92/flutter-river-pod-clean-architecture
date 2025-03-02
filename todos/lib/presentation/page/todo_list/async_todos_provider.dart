@@ -4,13 +4,16 @@ import 'package:todos/presentation/page/todo_list/async_todos_notifier.dart';
 
 import '../../utils/page_tag.dart';
 
-
 final asyncTodosAutoDisposeFamilyProvider =
-AutoDisposeAsyncNotifierProviderFamily<AsyncTodosAutoDisposeFamilyAsyncNotifier, TodosState, PageTag>(
-    AsyncTodosAutoDisposeFamilyAsyncNotifier.new);
+    AutoDisposeAsyncNotifierProviderFamily<
+        AsyncTodosAutoDisposeFamilyAsyncNotifier,
+        TodosState,
+        PageTag
+    >(AsyncTodosAutoDisposeFamilyAsyncNotifier.new);
 
 // TODO: use regular AsyncNotifierProvider
-final asyncTodosProvider = AsyncNotifierProvider<AsyncTodosNotifier, List<TodoModel>>(() {
+final asyncTodosProvider =
+    AsyncNotifierProvider<AsyncTodosNotifier, List<TodoModel>>(() {
   return AsyncTodosNotifier();
 });
 

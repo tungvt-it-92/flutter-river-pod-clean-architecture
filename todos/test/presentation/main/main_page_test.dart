@@ -1,4 +1,3 @@
-
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,7 +14,6 @@ import 'package:todos/presentation/widgets/index.dart';
 import '../unit_test_hepler.dart';
 
 class MockGetTodosUseCase extends Mock implements GetTodosUseCase {}
-
 
 main() {
   late GetTodosUseCase mockGetTodosUseCase;
@@ -37,9 +35,12 @@ main() {
   setUp(() async {
     await AppLocalizations.shared.reloadLanguageBundle(languageCode: 'en');
     mockGetTodosUseCase = MockGetTodosUseCase();
-    when(() => mockGetTodosUseCase.call()).thenAnswer((_) => Future.value(Right([finishedTodo, doingTodo])));
-    when(() => mockGetTodosUseCase.call(isFinished: true)).thenAnswer((_) => Future.value(Right([finishedTodo])));
-    when(() => mockGetTodosUseCase.call(isFinished: false)).thenAnswer((_) => Future.value(Right([doingTodo])));
+    when(() => mockGetTodosUseCase.call())
+        .thenAnswer((_) => Future.value(Right([finishedTodo, doingTodo])));
+    when(() => mockGetTodosUseCase.call(isFinished: true))
+        .thenAnswer((_) => Future.value(Right([finishedTodo])));
+    when(() => mockGetTodosUseCase.call(isFinished: false))
+        .thenAnswer((_) => Future.value(Right([doingTodo])));
   });
 
   tearDown(() {
@@ -49,13 +50,15 @@ main() {
   testWidgets('MainPage', (tester) async {
     await tester.runAsync(() async {
       await tester.pumpWidget(
-          ProviderScope(
-            overrides: [
-              getTodosUseCaseAutoDisposeFamilyProvider.overrideWith((ref, arg) => mockGetTodosUseCase )
-            ],
-            child: generateTestApp(const MainPage(pageTag: PageTag.main),
-            ),
-          )
+        ProviderScope(
+          overrides: [
+            getTodosUseCaseAutoDisposeFamilyProvider
+                .overrideWith((ref, arg) => mockGetTodosUseCase),
+          ],
+          child: generateTestApp(
+            const MainPage(pageTag: PageTag.main),
+          ),
+        ),
       );
 
       await tester.pumpAndSettle();

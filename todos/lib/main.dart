@@ -9,9 +9,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AppLocalizations.shared.reloadLanguageBundle(languageCode: 'en');
   runApp(
-      const ProviderScope(
+    const ProviderScope(
       child: MyApp(),
-    )
+    ),
   );
 }
 
@@ -34,7 +34,8 @@ class MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         textSelectionTheme: const TextSelectionThemeData(
-            selectionHandleColor: Colors.transparent),
+          selectionHandleColor: Colors.transparent,
+        ),
       ),
       home: const MainPage(
         pageTag: PageTag.main,
