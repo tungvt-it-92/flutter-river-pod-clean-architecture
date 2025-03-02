@@ -9,10 +9,13 @@ abstract class BaseUseCase<T, R> {
       final res = await main(arg);
       return Right(res);
     } on RemoteException catch (ex) {
-      return Left(RemoteFailure(
+      return Left(
+        RemoteFailure(
           msg: ex.errorMessage,
           code: ex.httpStatusCode,
-          errorCode: ex.errorCode));
+          errorCode: ex.errorCode,
+        ),
+      );
     } on CacheException catch (ex) {
       return Left(LocalFailure(msg: ex.errorMessage));
     } on PlatformException catch (ex) {

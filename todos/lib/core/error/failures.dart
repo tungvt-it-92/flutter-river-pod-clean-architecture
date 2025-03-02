@@ -2,8 +2,8 @@ import 'package:equatable/equatable.dart';
 
 abstract class Failure {
   final String? message;
-  final  int? httpStatusCode;
-  final  String? errorCode;
+  final int? httpStatusCode;
+  final String? errorCode;
 
   Failure({this.message, this.httpStatusCode, this.errorCode});
 }
@@ -11,7 +11,8 @@ abstract class Failure {
 class RemoteFailure extends Failure with EquatableMixin {
   final dynamic data;
 
-  RemoteFailure({String? msg, this.data, int? code, super.errorCode}) : super(message: msg, httpStatusCode: code);
+  RemoteFailure({String? msg, this.data, int? code, super.errorCode})
+      : super(message: msg, httpStatusCode: code);
 
   @override
   List<Object?> get props => [message, httpStatusCode, errorCode];
@@ -29,7 +30,8 @@ class PlatformFailure extends Failure {
 }
 
 class UnknownFailure extends Failure with EquatableMixin {
-  UnknownFailure({String? msg, int? code, super.errorCode}) : super(message: msg, httpStatusCode: code);
+  UnknownFailure({String? msg, int? code, super.errorCode})
+      : super(message: msg, httpStatusCode: code);
 
   @override
   List<Object?> get props => [message, errorCode];

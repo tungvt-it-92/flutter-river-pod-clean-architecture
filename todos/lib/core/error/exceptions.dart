@@ -17,7 +17,7 @@ class IOException implements Exception {
   IOException({this.errorMessage, this.errorCode});
 }
 
-const socketException = "SOCKET_EXCEPTION";
-const timeoutException = "TIMEOUT_EXCEPTION";
-const unknownException = "UNKNOWN_EXCEPTION";
-const ioException = "ioException";
+const socketException = 'SOCKET_EXCEPTION';
+const timeoutException = 'TIMEOUT_EXCEPTION';
+const unknownException = 'UNKNOWN_EXCEPTION';
+const ioException = 'ioException';

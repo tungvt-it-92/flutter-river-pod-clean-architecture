@@ -14,7 +14,6 @@ import '../unit_test_hepler.dart';
 
 class MockGetTodosUseCase extends Mock implements GetTodosUseCase {}
 
-
 main() {
   late GetTodosUseCase mockGetTodosUseCase;
   final todos = [
@@ -31,7 +30,7 @@ main() {
       description: 'description-2',
       createdDate: DateTime.now(),
       isFinished: true,
-    )
+    ),
   ];
   setUp(() async {
     mockGetTodosUseCase = MockGetTodosUseCase();
@@ -43,17 +42,20 @@ main() {
   });
 
   testWidgets('TodoListPage should show list todos', (tester) async {
-    when(() => mockGetTodosUseCase.call()).thenAnswer((_) => Future.value(Right(todos)));
+    when(() => mockGetTodosUseCase.call())
+        .thenAnswer((_) => Future.value(Right(todos)));
 
     await tester.runAsync(() async {
       await tester.pumpWidget(
-          ProviderScope(
-            overrides: [
-              getTodosUseCaseAutoDisposeFamilyProvider.overrideWith((ref, arg) => mockGetTodosUseCase )
-            ],
-            child: generateTestApp(const TodoListPage(pageTag: PageTag.allTodo),
-            ),
-          )
+        ProviderScope(
+          overrides: [
+            getTodosUseCaseAutoDisposeFamilyProvider
+                .overrideWith((ref, arg) => mockGetTodosUseCase),
+          ],
+          child: generateTestApp(
+            const TodoListPage(pageTag: PageTag.allTodo),
+          ),
+        ),
       );
 
       await tester.pumpAndSettle();
@@ -66,46 +68,50 @@ main() {
       expect(
         find.descendant(
           of: firstTodoItem,
-          matching: find.widgetWithIcon(IconButton, Icons.radio_button_unchecked)
+          matching:
+              find.widgetWithIcon(IconButton, Icons.radio_button_unchecked),
         ),
-        findsOne
+        findsOne,
       );
       expect(
-          find.descendant(
-              of: firstTodoItem,
-              matching: find.text(todos[0].title)
-          ),
-          findsOne
+        find.descendant(
+          of: firstTodoItem,
+          matching: find.text(todos[0].title),
+        ),
+        findsOne,
       );
       expect(
         find.descendant(
           of: secondTodoItem,
-          matching: find.widgetWithIcon(IconButton, Icons.done)
+          matching: find.widgetWithIcon(IconButton, Icons.done),
         ),
-        findsOne
+        findsOne,
       );
       expect(
-          find.descendant(
-              of: secondTodoItem,
-              matching: find.text(todos[1].title)
-          ),
-          findsOne
+        find.descendant(
+          of: secondTodoItem,
+          matching: find.text(todos[1].title),
+        ),
+        findsOne,
       );
     });
   });
 
   testWidgets('TodoListPage should show empty message', (tester) async {
-    when(() => mockGetTodosUseCase.call()).thenAnswer((_) => Future.value(const Right([])));
+    when(() => mockGetTodosUseCase.call())
+        .thenAnswer((_) => Future.value(const Right([])));
 
     await tester.runAsync(() async {
       await tester.pumpWidget(
-          ProviderScope(
-            overrides: [
-              getTodosUseCaseAutoDisposeFamilyProvider.overrideWith((ref, arg) => mockGetTodosUseCase )
-            ],
-            child: generateTestApp(const TodoListPage(pageTag: PageTag.allTodo),
-            ),
-          )
+        ProviderScope(
+          overrides: [
+            getTodosUseCaseAutoDisposeFamilyProvider
+                .overrideWith((ref, arg) => mockGetTodosUseCase),
+          ],
+          child: generateTestApp(
+            const TodoListPage(pageTag: PageTag.allTodo),
+          ),
+        ),
       );
 
       await tester.pumpAndSettle();
@@ -113,8 +119,17 @@ main() {
       expect(find.byType(TodoItemWidget), findsNothing);
       expect(find.byType(NoDataMessageWidget), findsOne);
       expect(find.text('There is no data'), findsOne);
-      expect(find.widgetWithText(NoDataMessageWidget, 'There is no data'), findsOne);
-      expect(find.descendant(of: find.byType(NoDataMessageWidget), matching: find.text('There is no data')), findsOne);
+      expect(
+        find.widgetWithText(NoDataMessageWidget, 'There is no data'),
+        findsOne,
+      );
+      expect(
+        find.descendant(
+          of: find.byType(NoDataMessageWidget),
+          matching: find.text('There is no data'),
+        ),
+        findsOne,
+      );
     });
   });
 }

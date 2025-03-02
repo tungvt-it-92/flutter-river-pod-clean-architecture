@@ -16,8 +16,9 @@ class TodoRepositoryImpl extends TodoRepository {
   }
 
   @override
-  Future<List<TodoModel>> getTodoListByCondition(
-      {required bool isFinished}) async {
+  Future<List<TodoModel>> getTodoListByCondition({
+    required bool isFinished,
+  }) async {
     return _todoDAO.getTodoListByCondition(isFinished: isFinished);
   }
 

@@ -24,13 +24,16 @@ class MainPageState extends BasePageState<MainPage> {
         },
       ),
       bottomNavigationBar: _BottomNavigationBar(
-          initIndex: pageIndex,
-          onItemClicked: (index) {
-            setState(() {
-              pageIndex = index;
-              pageTag = pageIndex == 0 ? PageTag.allTodo : (pageIndex == 1 ? PageTag.doingTodo : PageTag.doneTodo);
-            });
-          }),
+        initIndex: pageIndex,
+        onItemClicked: (index) {
+          setState(() {
+            pageIndex = index;
+            pageTag = pageIndex == 0
+                ? PageTag.allTodo
+                : (pageIndex == 1 ? PageTag.doingTodo : PageTag.doneTodo);
+          });
+        },
+      ),
       body: SafeArea(
         child: IndexedStack(
           index: pageIndex,
@@ -46,14 +49,19 @@ class MainPageState extends BasePageState<MainPage> {
 
   _onAddNewTodoClickedHandler(WidgetRef ref) async {
     final result = await showWidgetDialog(
-        context: context,
-        child: InputTodoWidget(onConfirm: (data) {
+      context: context,
+      child: InputTodoWidget(
+        onConfirm: (data) {
           Navigator.of(context).pop(data);
-        }));
+        },
+      ),
+    );
     if (result != null) {
-      ref.read(asyncTodosAutoDisposeFamilyProvider(pageTag).notifier).add(todo: result);
+      ref
+          .read(asyncTodosAutoDisposeFamilyProvider(pageTag).notifier)
+          .add(todo: result);
       for (var tag in [PageTag.allTodo, PageTag.doingTodo, PageTag.doneTodo]) {
-        if(tag !=  pageTag) {
+        if (tag != pageTag) {
           ref.invalidate(asyncTodosAutoDisposeFamilyProvider(tag));
         }
       }
@@ -68,7 +76,10 @@ class _BottomNavigationBar extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _BottomNavigationBarState();
 
-  const _BottomNavigationBar({required this.onItemClicked, required this.initIndex});
+  const _BottomNavigationBar({
+    required this.onItemClicked,
+    required this.initIndex,
+  });
 }
 
 class _BottomNavigationBarState extends State<_BottomNavigationBar> {

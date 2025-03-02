@@ -20,16 +20,21 @@ main() {
   group('Should create/update/delete todo item successfully', () {
     testWidgets('should add toto item', (tester) async {
       await tester.runAsync(() async {
-        await tester.pumpWidget(const ProviderScope(
-          child: MyApp(),
-        ));
+        await tester.pumpWidget(
+          const ProviderScope(
+            child: MyApp(),
+          ),
+        );
         await tester.pump();
         final todoListPO = TodoListPageObject(tester: tester);
 
         await todoListPO.clickOnAddNewTodoButton();
         expect(find.byType(InputTodoWidget), findsOneWidget);
 
-        final todoItemFinder = find.descendant(of: find.byType(TodoListPage), matching: find.byType(TodoItemWidget));
+        final todoItemFinder = find.descendant(
+          of: find.byType(TodoListPage),
+          matching: find.byType(TodoItemWidget),
+        );
 
         await todoListPO.enterTodoTitle('Input new title');
         await todoListPO.enterTodoDescription('Input new description');
@@ -48,11 +53,20 @@ main() {
         expect(todoItemFinder, findsExactly(1));
 
         await todoListPO.changeTab(tabName: 'All');
-        await todoListPO.drag(type: TodoItemWidget, offset: const Offset(-500, 0));
+        await todoListPO.drag(
+          type: TodoItemWidget,
+          offset: const Offset(-500, 0),
+        );
         await todoListPO.clickOnButtonText(buttonName: 'Delete');
         expect(find.text('Are you sure to delete this note?'), findsExactly(1));
-        final deleteMenuItem = find.descendant(of: find.byType(RoundContainer), matching: find.text('Delete'));
-        final cancelMenuItem = find.descendant(of: find.byType(RoundContainer), matching: find.text('Cancel'));
+        final deleteMenuItem = find.descendant(
+          of: find.byType(RoundContainer),
+          matching: find.text('Delete'),
+        );
+        final cancelMenuItem = find.descendant(
+          of: find.byType(RoundContainer),
+          matching: find.text('Cancel'),
+        );
         expect(deleteMenuItem, findsExactly(1));
         expect(cancelMenuItem, findsExactly(1));
         await tester.ensureVisible(deleteMenuItem);

@@ -16,8 +16,8 @@ main() {
     mockTodoDAO = MockTodoDAO();
     final providerContainer = ProviderContainer(
       overrides: [
-        todoDaoProvider.overrideWithValue(mockTodoDAO)
-      ]
+        todoDaoProvider.overrideWithValue(mockTodoDAO),
+      ],
     );
     todoRepository = providerContainer.read(todoRepositoryProvider);
   });
@@ -32,7 +32,8 @@ main() {
         isFinished: true,
       );
 
-      when(() => mockTodoDAO.insertOrUpdate(data: newTodo)).thenAnswer((_) => Future.value());
+      when(() => mockTodoDAO.insertOrUpdate(data: newTodo))
+          .thenAnswer((_) => Future.value());
 
       await todoRepository.addNewTodo(todo: newTodo);
 
@@ -58,11 +59,14 @@ main() {
             isFinished: false,
           ),
         ];
-        when(() => mockTodoDAO.getTodoListByCondition(isFinished: condition)).thenAnswer((_) => Future.value(fetchedTodos));
+        when(() => mockTodoDAO.getTodoListByCondition(isFinished: condition))
+            .thenAnswer((_) => Future.value(fetchedTodos));
 
-        final result = await todoRepository.getTodoListByCondition(isFinished: condition);
+        final result =
+            await todoRepository.getTodoListByCondition(isFinished: condition);
 
-        verify(() => mockTodoDAO.getTodoListByCondition(isFinished: condition)).called(1);
+        verify(() => mockTodoDAO.getTodoListByCondition(isFinished: condition))
+            .called(1);
         verifyNoMoreInteractions(mockTodoDAO);
         expect(result, fetchedTodos);
       });

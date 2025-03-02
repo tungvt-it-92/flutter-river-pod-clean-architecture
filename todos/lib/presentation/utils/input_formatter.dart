@@ -7,12 +7,12 @@ List<TextInputFormatter> nameFormatter = [
 
 List<TextInputFormatter> onlyNumberFormatter = [
   FilteringTextInputFormatter.allow(
-      RegExp(phoneNumberRegex)), // only allow number
+    RegExp(phoneNumberRegex),
+  ), // only allow number
 ];
 
 List<TextInputFormatter> passwordFormatter = [
-  FilteringTextInputFormatter.deny(RegExp(r"[ ]")),
+  FilteringTextInputFormatter.deny(RegExp(r'[ ]')),
   LengthLimitingTextInputFormatter(maxLengthPassword),
-  FilteringTextInputFormatter.allow(RegExp(phoneNumberRegex))
+  FilteringTextInputFormatter.allow(RegExp(phoneNumberRegex)),
 ];
-

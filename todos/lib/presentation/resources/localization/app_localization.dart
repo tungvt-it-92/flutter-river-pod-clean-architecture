@@ -15,7 +15,7 @@ class AppLocalizations {
   }
 
   String text(String key) {
-    return _localisedValues[key] ?? "$key not found";
+    return _localisedValues[key] ?? '$key not found';
   }
 
   // defined text
@@ -33,23 +33,23 @@ class AppLocalizations {
   String get addTotoHintTitleLabel => text('add_new_toto_hint_label_title');
   String get addTotoDescriptionLabel => text('add_new_toto_label_desciption');
   String get addTotoHintDescriptionLabel =>
-      text('add_new_toto_hint_label_desciption');
+      text('add_new_toto_hint_label_description');
   String get addNewTodoTitleError => text('add_new_toto_title_empty_error');
   String get addNewTodoDescriptionError =>
       text('add_new_toto_title_description_error');
   String get commonMessageConnectionError =>
       text('common_message_internet_problem');
   String get commonMessageServerMaintenance =>
-      text('common_message_server_maintaince');
+      text('common_message_server_maintenance');
 
   Future<void> reloadLanguageBundle({required String languageCode}) async {
-    String path = "assets/jsons/localization_$languageCode.json";
-    String jsonContent = "";
+    String path = 'assets/jsons/localization_$languageCode.json';
+    String jsonContent = '';
     try {
       jsonContent = await rootBundle.loadString(path);
     } catch (_) {
       jsonContent =
-          await rootBundle.loadString("assets/jsons/localization_en.json");
+          await rootBundle.loadString('assets/jsons/localization_en.json');
     }
     _localisedValues = json.decode(jsonContent);
   }

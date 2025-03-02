@@ -16,12 +16,12 @@ class BasePageObject {
     await tester.enterText(textField, content);
   }
 
-  clickOnButtonText({ required String buttonName }) async {
+  clickOnButtonText({required String buttonName}) async {
     final button = find.text(buttonName);
     await click(button);
   }
 
-  drag({ required Type type, required Offset offset} ) async {
+  drag({required Type type, required Offset offset}) async {
     await tester.drag(find.byType(type), offset);
     await tester.pumpAndSettle();
   }

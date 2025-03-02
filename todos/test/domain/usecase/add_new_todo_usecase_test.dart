@@ -16,11 +16,12 @@ main() {
   setUp(() {
     mockTodoRepository = MockTodoRepository();
     providerContainer = ProviderContainer(
-        overrides: [
-          todoRepositoryProvider.overrideWithValue(mockTodoRepository)
-        ]
+      overrides: [
+        todoRepositoryProvider.overrideWithValue(mockTodoRepository),
+      ],
     );
-    addNewTotoUseCase = providerContainer.read(addNewTodoProviderUseCaseProvider);
+    addNewTotoUseCase =
+        providerContainer.read(addNewTodoProviderUseCaseProvider);
   });
 
   tearDown(() {
@@ -36,8 +37,11 @@ main() {
         createdDate: DateTime.now(),
         isFinished: true,
       );
-      when(() => mockTodoRepository.addNewTodo(todo: newTodo)).thenAnswer((_) => Future.value());
-
+      when(
+        () => mockTodoRepository.addNewTodo(todo: newTodo),
+      ).thenAnswer(
+        (_) => Future.value(),
+      );
 
       final result = await addNewTotoUseCase(todoModel: newTodo);
 

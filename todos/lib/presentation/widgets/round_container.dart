@@ -27,33 +27,35 @@ class RoundContainer extends StatelessWidget {
     this.width,
     this.borderColor = Colors.transparent,
     this.borderWidth = 1,
-    super.key
+    super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     final radius = BorderRadius.only(
-        topLeft: Radius.circular(allRadius ?? topLeftRadius),
-        topRight: Radius.circular(allRadius ?? topRightRadius),
-        bottomLeft: Radius.circular(allRadius ?? bottomLeftRadius),
-        bottomRight: Radius.circular(allRadius ?? bottomRightRadius));
+      topLeft: Radius.circular(allRadius ?? topLeftRadius),
+      topRight: Radius.circular(allRadius ?? topRightRadius),
+      bottomLeft: Radius.circular(allRadius ?? bottomLeftRadius),
+      bottomRight: Radius.circular(allRadius ?? bottomRightRadius),
+    );
     return Container(
       height: height,
       width: width,
       decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.15),
-              spreadRadius: 1,
-              blurRadius: 5,
-              offset: const Offset(0, 0),
-            ),
-          ],
-          color: color ?? Colors.white,
-          borderRadius: radius,
-          border: borderColor != null
-              ? Border.all(color: borderColor!, width: borderWidth ?? 1)
-              : null),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withValues(alpha: 0.15),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: const Offset(0, 0),
+          ),
+        ],
+        color: color ?? Colors.white,
+        borderRadius: radius,
+        border: borderColor != null
+            ? Border.all(color: borderColor!, width: borderWidth ?? 1)
+            : null,
+      ),
       child: ClipRRect(
         borderRadius: radius,
         child: child,

@@ -7,16 +7,17 @@ import 'package:todos/domain/repository/todo_repository.dart';
 import 'package:todos/domain/usecase/base_usecase.dart';
 
 abstract class GetTodosUseCase {
-  Future<Either<Failure, List<TodoModel>>> call({ bool? isFinished });
+  Future<Either<Failure, List<TodoModel>>> call({bool? isFinished});
 }
 
-final class GetTodosUseCaseImpl extends BaseUseCase<List<TodoModel>, bool> implements GetTodosUseCase {
+final class GetTodosUseCaseImpl extends BaseUseCase<List<TodoModel>, bool>
+    implements GetTodosUseCase {
   final TodoRepository todoRepository;
 
   GetTodosUseCaseImpl(this.todoRepository);
 
   @override
-  Future<Either<Failure, List<TodoModel>>> call({ bool? isFinished}) async {
+  Future<Either<Failure, List<TodoModel>>> call({bool? isFinished}) async {
     return execute(isFinished);
   }
 
@@ -44,13 +45,14 @@ final class GetTodosUseCaseImpl extends BaseUseCase<List<TodoModel>, bool> imple
 * Use Provider.family to generate new instance when providing difference param
 */
 
-final getTodosUseCaseFamilyProvider = Provider.family<GetTodosUseCase, bool?>((ref, isFinished) {
+final getTodosUseCaseFamilyProvider =
+    Provider.family<GetTodosUseCase, bool?>((ref, isFinished) {
   final repository = ref.read(todoRepositoryProvider);
   return GetTodosUseCaseImpl(repository);
 });
 
-final getTodosUseCaseAutoDisposeFamilyProvider = AutoDisposeProvider.family<GetTodosUseCase, bool?>((ref, isFinished) {
+final getTodosUseCaseAutoDisposeFamilyProvider =
+    AutoDisposeProvider.family<GetTodosUseCase, bool?>((ref, isFinished) {
   final repository = ref.read(todoRepositoryProvider);
   return GetTodosUseCaseImpl(repository);
 });
-

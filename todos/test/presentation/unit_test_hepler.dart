@@ -6,7 +6,8 @@ Widget generateTestApp(Widget widget) {
       DefaultMaterialLocalizations.delegate,
     ],
     home: Directionality(
-        textDirection: TextDirection.ltr,
-        child: widget),
+      textDirection: TextDirection.ltr,
+      child: widget,
+    ),
   );
 }

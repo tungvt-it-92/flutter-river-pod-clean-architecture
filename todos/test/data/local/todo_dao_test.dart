@@ -2,13 +2,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 // import 'package:mocktail/mocktail.dart';
 import 'package:mockito/mockito.dart';
-import 'package:objectbox/objectbox.dart';
 import 'package:todos/data/local/index.dart';
 import 'package:todos/domain/model/todo_model.dart';
 import 'package:todos/objectbox.g.dart';
 
 import 'todo_dao_test.mocks.dart';
 
+// ignore_for_file: lines_longer_than_80_chars
 /*
 * Manually create mock object by using mocktail
 */
@@ -89,10 +89,16 @@ import 'todo_dao_test.mocks.dart';
   MockSpec<StoreProvider>(),
   MockSpec<Store>(),
   MockSpec<Box<TodoModel>>(),
-  MockSpec<QueryBuilder<TodoModel>>(unsupportedMembers: { Symbol('link'), Symbol('backlink'), Symbol('linkMany'), Symbol('backlinkMany') }),
-  MockSpec<Query<TodoModel>>()
+  MockSpec<QueryBuilder<TodoModel>>(
+    unsupportedMembers: {
+      Symbol('link'),
+      Symbol('backlink'),
+      Symbol('linkMany'),
+      Symbol('backlinkMany'),
+    },
+  ),
+  MockSpec<Query<TodoModel>>(),
 ])
-
 main() {
   late TodoDAOImpl todoDAOImpl;
   late StoreProvider mockStoreProvider;
@@ -103,7 +109,8 @@ main() {
     mockStoreProvider = MockStoreProvider();
     mockStore = MockStore();
     mockBox = MockBox();
-    when(mockStoreProvider.getStore()).thenAnswer((_) => Future.value(mockStore));
+    when(mockStoreProvider.getStore())
+        .thenAnswer((_) => Future.value(mockStore));
     when(mockStore.box<TodoModel>()).thenReturn(mockBox);
     todoDAOImpl = TodoDAOImpl(storeProvider: mockStoreProvider);
   });
@@ -115,24 +122,29 @@ main() {
     final allTodos = [
       TodoModel(
         id: 0,
-        title: "todo0",
-        description: "description0",
+        title: 'todo0',
+        description: 'description0',
         createdDate: DateTime.now(),
         isFinished: true,
       ),
       TodoModel(
         id: 1,
-        title: "todo1",
-        description: "description1",
+        title: 'todo1',
+        description: 'description1',
         createdDate: DateTime.now(),
         isFinished: true,
-      )
+      ),
     ];
     setUp(() {
       mockQueryBuilder = MockQueryBuilder();
       mockQuery = MockQuery();
       when(mockBox.query()).thenReturn(mockQueryBuilder);
-      when(mockQueryBuilder.order(TodoModel_.createdDate, flags: Order.descending)).thenReturn(mockQueryBuilder);
+      when(
+        mockQueryBuilder.order(
+          TodoModel_.createdDate,
+          flags: Order.descending,
+        ),
+      ).thenReturn(mockQueryBuilder);
       when(mockQueryBuilder.build()).thenReturn(mockQuery);
       when(mockQuery.find()).thenReturn(allTodos);
       when(mockQuery.close()).thenAnswer((_) => {});
@@ -144,7 +156,12 @@ main() {
       verify(mockStoreProvider.getStore()).called(1);
       verify(mockStore.box<TodoModel>()).called(1);
       verify(mockBox.query()).called(1);
-      verify(mockQueryBuilder.order(TodoModel_.createdDate, flags: Order.descending)).called(1);
+      verify(
+        mockQueryBuilder.order(
+          TodoModel_.createdDate,
+          flags: Order.descending,
+        ),
+      ).called(1);
       verify(mockQueryBuilder.build()).called(1);
       verify(mockQuery.find()).called(1);
       verify(mockQuery.close()).called(1);
