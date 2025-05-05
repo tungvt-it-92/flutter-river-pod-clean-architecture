@@ -1,37 +1,10 @@
 import 'dart:async';
-import 'package:dartz/dartz.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todos/domain/model/todo_model.dart';
 import 'package:todos/domain/usecase/index.dart';
 import 'package:todos/presentation/base/base_page.dart';
-import 'package:todos/presentation/page/todo_list/async_todos_provider.dart';
-
-import '../../../core/error/failures.dart';
-import '../../../data/repository/index.dart';
-
-class TodosState {
-  List<TodoModel> todos;
-  bool isLoading;
-  Failure? failure;
-
-  TodosState({
-    this.todos = const [],
-    this.isLoading = false,
-    this.failure,
-  });
-
-  TodosState copyWith({
-    List<TodoModel>? todos,
-    bool? isLoading,
-    Failure? failure,
-  }) {
-    return TodosState(
-      todos: todos ?? this.todos,
-      isLoading: isLoading ?? false,
-      failure: failure,
-    );
-  }
-}
+import 'package:todos/presentation/page/todo_list/todos_state.dart';
 
 class AsyncTodosAutoDisposeFamilyAsyncNotifier
     extends AutoDisposeFamilyAsyncNotifier<TodosState, PageTag> {
@@ -49,19 +22,14 @@ class AsyncTodosAutoDisposeFamilyAsyncNotifier
         : (arg == PageTag.doingTodo ? false : true);
     final getTodosUseCase =
         ref.read(getTodosUseCaseAutoDisposeFamilyProvider(fetchCondition));
-    Either<Failure, List<TodoModel>> result;
-    if (arg == PageTag.allTodo) {
-      result = await getTodosUseCase();
-    } else if (arg == PageTag.doingTodo) {
-      result = await getTodosUseCase(isFinished: false);
-    } else {
-      result = await getTodosUseCase(isFinished: true);
-    }
 
+   final result = await getTodosUseCase(isFinished: fetchCondition);
     await result.fold((failure) async {
-      state = AsyncData((await future).copyWith(failure: failure));
+      state = AsyncData(
+          (await future).copyWith(failure: failure, isLoading: false));
     }, (value) async {
-      state = AsyncData((await future).copyWith(todos: value));
+      state =
+          AsyncData((await future).copyWith(todos: value, isLoading: false));
     });
   }
 
@@ -72,10 +40,12 @@ class AsyncTodosAutoDisposeFamilyAsyncNotifier
         await ref.read(addNewTodoProviderUseCaseProvider)(todoModel: todo);
     final currentValue = await future;
     state = result.fold((failure) {
-      return AsyncData(currentValue.copyWith(failure: failure));
+      return AsyncData(
+          currentValue.copyWith(failure: failure, isLoading: false));
     }, (_) {
       return AsyncData(
-        currentValue.copyWith(todos: [...currentValue.todos, todo]),
+        currentValue
+            .copyWith(todos: [...currentValue.todos, todo], isLoading: false),
       );
     });
   }
@@ -87,11 +57,12 @@ class AsyncTodosAutoDisposeFamilyAsyncNotifier
         await ref.read(removeTodoUseCaseAutoDisposeProvider)(todoModel: todo);
     final currentValue = await future;
     state = result.fold((failure) {
-      return AsyncData(currentValue.copyWith(failure: failure));
+      return AsyncData(
+          currentValue.copyWith(failure: failure, isLoading: false));
     }, (_) {
       List<TodoModel> todos =
           currentValue.todos.where((p) => p.id != todo.id).toList();
-      return AsyncData(currentValue.copyWith(todos: todos));
+      return AsyncData(currentValue.copyWith(todos: todos, isLoading: false));
     });
   }
 
@@ -100,69 +71,73 @@ class AsyncTodosAutoDisposeFamilyAsyncNotifier
 
     final result =
         await ref.read(updateTodoUseCaseAutoDisposeProvider)(todoModel: todo);
-    result.fold((failure) {
-      state = AsyncData(state.value!.copyWith(failure: failure));
+    List<TodoModel> todos = (await future).todos;
+
+    state = result.fold((failure) {
+      return AsyncData(
+          state.value!.copyWith(failure: failure, isLoading: false));
     }, (_) {
-      List<TodoModel> todos = state.value?.todos ?? [];
       if (tag == PageTag.allTodo) {
         todos = todos.map((t) => t.id == todo.id ? todo : t).toList();
       } else {
         todos = todos.where((p) => p.id != todo.id).toList();
       }
-      state = AsyncData(state.value!.copyWith(todos: todos));
+      return AsyncData(state.value!.copyWith(todos: todos, isLoading: false));
     });
   }
 }
 
-// TODO: try with regular AsyncNotifier
-class AsyncTodosNotifier extends AsyncNotifier<List<TodoModel>> {
-  @override
-  Future<List<TodoModel>> build() async {
-    final tag = ref.watch(todoFilterConditionProvider);
-    final todoRepository = ref.read(todoRepositoryProvider);
-    if (tag == PageTag.allTodo) {
-      return todoRepository.getAll();
-    }
-    if (tag == PageTag.doingTodo) {
-      return todoRepository.getTodoListByCondition(isFinished: false);
-    }
-
-    return todoRepository.getTodoListByCondition(isFinished: true);
-  }
-
-  add({required TodoModel todo}) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      final todoRepository = ref.read(todoRepositoryProvider);
-      await todoRepository.addNewTodo(todo: todo);
-      var current = state.value ?? [];
-      current.add(todo);
-      return current;
-    });
-  }
-
-  remove({required TodoModel todo}) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      final todoRepository = ref.read(todoRepositoryProvider);
-      await todoRepository.remove(id: todo.id);
-      var current = state.value ?? [];
-      current.remove(todo);
-      return current;
-    });
-  }
-
-  updateTodo({required TodoModel todo}) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      final todoRepository = ref.read(todoRepositoryProvider);
-      await todoRepository.updateTodo(todo: todo);
-      var current = state.value ?? [];
-      final index = current.indexOf(todo);
-      if (index >= 0) {
-        current[index] = todo;
-      }
-      return current;
-    });
-  }
-}
+/*
+* Try with regular AsyncNotifier
+*/
+// class AsyncTodosNotifier extends AsyncNotifier<List<TodoModel>> {
+//   @override
+//   Future<List<TodoModel>> build() async {
+//     final tag = ref.watch(todoFilterConditionProvider);
+//     final todoRepository = ref.read(todoRepositoryProvider);
+//     if (tag == PageTag.allTodo) {
+//       return todoRepository.getAll();
+//     }
+//     if (tag == PageTag.doingTodo) {
+//       return todoRepository.getTodoListByCondition(isFinished: false);
+//     }
+//
+//     return todoRepository.getTodoListByCondition(isFinished: true);
+//   }
+//
+//   add({required TodoModel todo}) async {
+//     state = const AsyncValue.loading();
+//     state = await AsyncValue.guard(() async {
+//       final todoRepository = ref.read(todoRepositoryProvider);
+//       await todoRepository.addNewTodo(todo: todo);
+//       var current = state.value ?? [];
+//       current.add(todo);
+//       return current;
+//     });
+//   }
+//
+//   remove({required TodoModel todo}) async {
+//     state = const AsyncValue.loading();
+//     state = await AsyncValue.guard(() async {
+//       final todoRepository = ref.read(todoRepositoryProvider);
+//       await todoRepository.remove(id: todo.id);
+//       var current = state.value ?? [];
+//       current.remove(todo);
+//       return current;
+//     });
+//   }
+//
+//   updateTodo({required TodoModel todo}) async {
+//     state = const AsyncValue.loading();
+//     state = await AsyncValue.guard(() async {
+//       final todoRepository = ref.read(todoRepositoryProvider);
+//       await todoRepository.updateTodo(todo: todo);
+//       var current = state.value ?? [];
+//       final index = current.indexOf(todo);
+//       if (index >= 0) {
+//         current[index] = todo;
+//       }
+//       return current;
+//     });
+//   }
+// }
