@@ -2,10 +2,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:todos/domain/model/todo_model.dart';
 import 'package:todos/presentation/base/base_page_mixin.dart';
+import 'package:todos/presentation/page/todo_list/todos_state.dart';
 
 import '../../base/base_page.dart';
 import '../../widgets/index.dart';
-import 'async_todos_notifier.dart';
 import 'async_todos_provider.dart';
 import 'widget/todo_item_widget.dart';
 
@@ -18,15 +18,14 @@ class TodoListPage extends BasePage {
 }
 
 class TodoListPageState extends BasePageState<TodoListPage> {
-  final RefreshController _controller =
-      RefreshController(initialRefresh: false);
+  final _controller = RefreshController(initialRefresh: false);
 
   @override
   Widget buildLayout(BuildContext context, WidgetRef ref) {
     final pageTag = (widget as BasePage).tag;
+
     final AsyncValue<TodosState> state =
         ref.watch(asyncTodosAutoDisposeFamilyProvider(pageTag));
-    _controller.refreshCompleted();
     ref.listen(
       asyncTodosAutoDisposeFamilyProvider(pageTag),
       listenStateChanged,
@@ -35,8 +34,10 @@ class TodoListPageState extends BasePageState<TodoListPage> {
     return Padding(
       padding: const EdgeInsets.all(15.0),
       child: SmartRefresher(
-        onRefresh: () {
-          ref.invalidate(asyncTodosAutoDisposeFamilyProvider(pageTag));
+        onRefresh: () async {
+          await ref
+              .refresh(asyncTodosAutoDisposeFamilyProvider(pageTag).future);
+          _controller.refreshCompleted();
         },
         controller: _controller,
         child: todos.isEmpty
